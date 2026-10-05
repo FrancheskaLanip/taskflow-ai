@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+{% block title %}Task Detail{% endblock %}
+{% block content %}
+
+<style>
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes glowPulse {
+        0%, 100% {
+            box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+        }
+        50% {
+            box-shadow: 0 0 20px rgba(13, 110, 253, 0.8), 0 0 30px rgba(13, 110, 253, 0.6);
+        }
+    }
+
+    /* Container */
+    .detail-container {
+        max-width: 900px;
+        margin: 0 auto;
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 1.5rem;
+        animation: slideInLeft 0.5s ease-out;
+    }
+
+    .breadcrumb-item a {
+        color: #6c757d;
+        transition: color 0.3s ease;
+        text-decoration: none;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #0d6efd;
+    }
+
+    /* Header Card */
+    .detail-header {
+        background: #fff;
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(13, 110, 253, 0.2);
+        position: relative;
+        overflow: hidden;
+        animation: slideUp 0.8s ease-out;
+        transition: all 0.4s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .detail-header::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, #0d6efd, #0dcaf0);
+    }
+
+    .detail-header::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.7s ease;
+    }
+
+    .detail-header:hover::after {
+        left: 100%;
+    }
+
+    .detail-header:hover {
+        border-color: rgba(13, 110, 253, 0.4);
+        box-shadow: 0 8px 30px rgba(13, 110, 253, 0.15);
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        animation: pulse 2s ease-in-out infinite;
+        transition: transform 0.3s ease;
+    }
+
+    .status-badge:hover {
+        transform: scale(1.1);
+        animation: none;
+    }
+
+    .status-badge.completed {
+        background: rgba(25, 135, 84, 0.1);
+        color: #198754;
+        border: 1px solid rgba(25, 135, 84, 0.3);
+    }
+
+    .status-badge.pending {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+        border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    /* Task Title */
+    .task-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 0;
+    }
+
+    .task-completed {
+        color: #6c757d;
+        text-decoration: line-through;
+        opacity: 0.7;
+    }
+
+    /* Detail Cards Grid */
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 1.8rem;
+        border: 1px solid #e9ecef;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        animation: slideUp 0.8s ease-out backwards;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .detail-card:nth-child(1) { animation-delay: 0.1s; }
+    .detail-card:nth-child(2) { animation-delay: 0.2s; }
+    .detail-card:nth-child(3) { animation-delay: 0.3s; }
+    .detail-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .detail-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .detail-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(13, 110, 253, 0.3);
+        box-shadow: 0 12px 35px rgba(13, 110, 253, 0.15);
+    }
+
+    .detail-card:hover::before {
+        left: 100%;
+    }
+
+    .detail-card-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .detail-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(13, 110, 253, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #0d6efd;
+        font-size: 1.3rem;
+        transition: all 0.3s ease;
+    }
+
+    .detail-card:hover .detail-icon {
+        transform: rotate(10deg) scale(1.15);
+        background: rgba(13, 110, 253, 0.2);
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+    }
+
+    .detail-value {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: #212529;
+        margin: 0;
+    }
+
+    /* Action Buttons */
+    .actions-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 2rem;
+        border: 1px solid #e9ecef;
+        animation: slideUp 0.8s ease-out 0.5s backwards;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .action-btn {
+        padding: 0.9rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .action-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    .action-btn:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+    }
+
+    .action-btn:active {
+        transform: translateY(0);
+    }
+
+    .btn-outline-secondary {
+        background: transparent;
+        color: #6c757d;
+        border: 2px solid #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #6c757d;
+        color: white;
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: #000;
+        border: none;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+    }
+
+    .btn-warning:hover {
+        box-shadow: 0 6px 25px rgba(255, 193, 7, 0.5);
+        color: #000;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .detail-header {
+            padding: 1.8rem;
+        }
+
+        .task-title {
+            font-size: 1.6rem;
+        }
+
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .actions-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .detail-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+    }
+</style>
+
+<div class="detail-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('view_tasks') }}">Tasks</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Task Detail</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="detail-header">
+        <div class="status-badge {% if task.completed %}completed{% else %}pending{% endif %}">
+            <i class="bi bi-{% if task.completed %}check-circle-fill{% else %}clock-fill{% endif %}"></i>
+            {% if task.completed %}Completed{% else %}Pending{% endif %}
+        </div>
+        
+        <h1 class="task-title {% if task.completed %}task-completed{% endif %}">
+            {{ task.name }}
+        </h1>
+    </div>
+
+    <!-- Detail Cards -->
+    <div class="detail-grid">
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <div class="detail-icon">
+                    <i class="bi bi-calendar-event"></i>
+                </div>
+                <p class="detail-label">Deadline</p>
+            </div>
+            <p class="detail-value">
+                {% if task.deadline %}{{ task.deadline }}{% else %}No deadline{% endif %}
+            </p>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <div class="detail-icon">
+                    <i class="bi bi-tag"></i>
+                </div>
+                <p class="detail-label">Category</p>
+            </div>
+            <p class="detail-value">
+                {% if task.category %}{{ task.category }}{% else %}None{% endif %}
+            </p>
+        </div>
+
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <div class="detail-icon">
+                    <i class="bi bi-signal"></i>
+                </div>
+                <p class="detail-label">Priority</p>
+            </div>
+            <p class="detail-value">
+                {% if task.priority %}{{ task.priority }}{% else %}None{% endif %}
+            </p>
+        </div>
+
+        {% if task.recurring and task.recurring != "None" %}
+        <div class="detail-card">
+            <div class="detail-card-header">
+                <div class="detail-icon">
+                    <i class="bi bi-arrow-repeat"></i>
+                </div>
+                <p class="detail-label">Recurring</p>
+            </div>
+            <p class="detail-value">{{ task.recurring }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-card">
+        <div class="actions-grid">
+            <a href="{{ url_for('view_tasks') }}" class="action-btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Tasks
+            </a>
+            <a href="{{ url_for('edit_task', task_id=task.id) }}" class="action-btn btn-warning">
+                <i class="bi bi-pencil-square"></i> Edit Task
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,621 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<style>
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% { 
+      transform: scale(1.08);
+      opacity: 0.9;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes shimmer {
+    0% { 
+      background-position: -1000px 0; 
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.8;
+    }
+    100% { 
+      background-position: 1000px 0; 
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 5px currentColor, 0 0 10px currentColor;
+    }
+    50% {
+      box-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+    }
+  }
+
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* Container */
+  .dashboard-container {
+    animation: fadeIn 0.8s ease-out;
+    padding-bottom: 3rem;
+  }
+
+  /* Header Section */
+  .dashboard-header {
+    margin-bottom: 2.5rem;
+    animation: slideUp 0.6s ease-out;
+    position: relative;
+  }
+
+  .dashboard-header::after {
+    content: '';
+    position: absolute;
+    bottom: -1rem;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+    border-radius: 2px;
+    animation: slideInRight 0.8s ease-out 0.3s backwards;
+  }
+
+  .dashboard-header h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+  }
+
+  .dashboard-header p {
+    color: #6c757d;
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+
+  /* Stats Cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .stat-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.7s ease-out backwards;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+  }
+
+  .stat-card:nth-child(1) { animation-delay: 0.1s; }
+  .stat-card:nth-child(2) { animation-delay: 0.15s; }
+  .stat-card:nth-child(3) { animation-delay: 0.2s; }
+  .stat-card:nth-child(4) { animation-delay: 0.25s; }
+  .stat-card:nth-child(5) { animation-delay: 0.3s; }
+  .stat-card:nth-child(6) { animation-delay: 0.35s; }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    transition: left 0.8s ease;
+    z-index: 1;
+  }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  }
+
+  .stat-card:hover::before {
+    left: 100%;
+  }
+
+  .stat-card:hover::after {
+    opacity: 1;
+  }
+
+  .stat-card.total {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-color: rgba(108, 117, 125, 0.2);
+  }
+
+  .stat-card.total:hover {
+    border-color: #6c757d;
+    box-shadow: 0 20px 50px rgba(108, 117, 125, 0.25);
+  }
+
+  .stat-card.completed {
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.08) 0%, rgba(32, 201, 151, 0.08) 100%);
+    border-color: rgba(25, 135, 84, 0.25);
+  }
+
+  .stat-card.completed:hover {
+    border-color: #198754;
+    box-shadow: 0 20px 50px rgba(25, 135, 84, 0.3);
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.12) 0%, rgba(32, 201, 151, 0.12) 100%);
+  }
+
+  .stat-card.pending {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 152, 0, 0.08) 100%);
+    border-color: rgba(255, 193, 7, 0.25);
+  }
+
+  .stat-card.pending:hover {
+    border-color: #ffc107;
+    box-shadow: 0 20px 50px rgba(255, 193, 7, 0.3);
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.12) 0%, rgba(255, 152, 0, 0.12) 100%);
+  }
+
+  .stat-card.today {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.08) 0%, rgba(13, 202, 240, 0.08) 100%);
+    border-color: rgba(13, 110, 253, 0.25);
+  }
+
+  .stat-card.today:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 20px 50px rgba(13, 110, 253, 0.3);
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.12) 0%, rgba(13, 202, 240, 0.12) 100%);
+  }
+
+  .stat-card.tomorrow {
+    background: linear-gradient(135deg, rgba(13, 202, 240, 0.08) 0%, rgba(111, 66, 193, 0.08) 100%);
+    border-color: rgba(13, 202, 240, 0.25);
+  }
+
+  .stat-card.tomorrow:hover {
+    border-color: #0dcaf0;
+    box-shadow: 0 20px 50px rgba(13, 202, 240, 0.3);
+    background: linear-gradient(135deg, rgba(13, 202, 240, 0.12) 0%, rgba(111, 66, 193, 0.12) 100%);
+  }
+
+  .stat-card.overdue {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.08) 0%, rgba(214, 51, 132, 0.08) 100%);
+    border-color: rgba(220, 53, 69, 0.25);
+  }
+
+  .stat-card.overdue:hover {
+    border-color: #dc3545;
+    box-shadow: 0 20px 50px rgba(220, 53, 69, 0.3);
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.12) 0%, rgba(214, 51, 132, 0.12) 100%);
+  }
+
+  .stat-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1.2rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    z-index: 2;
+  }
+
+  .stat-card:hover .stat-icon {
+    transform: scale(1.2) rotate(10deg);
+    animation: float 2s ease-in-out infinite;
+  }
+
+  .stat-card.total .stat-icon {
+    background: linear-gradient(135deg, rgba(108, 117, 125, 0.15), rgba(108, 117, 125, 0.25));
+    color: #6c757d;
+    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.2);
+  }
+
+  .stat-card.completed .stat-icon {
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.2), rgba(32, 201, 151, 0.3));
+    color: #198754;
+    box-shadow: 0 8px 20px rgba(25, 135, 84, 0.25);
+  }
+
+  .stat-card.pending .stat-icon {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 152, 0, 0.3));
+    color: #ffc107;
+    box-shadow: 0 8px 20px rgba(255, 193, 7, 0.25);
+  }
+
+  .stat-card.today .stat-icon {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.2), rgba(13, 202, 240, 0.3));
+    color: #0d6efd;
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.25);
+  }
+
+  .stat-card.tomorrow .stat-icon {
+    background: linear-gradient(135deg, rgba(13, 202, 240, 0.2), rgba(111, 66, 193, 0.3));
+    color: #0dcaf0;
+    box-shadow: 0 8px 20px rgba(13, 202, 240, 0.25);
+  }
+
+  .stat-card.overdue .stat-icon {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(214, 51, 132, 0.3));
+    color: #dc3545;
+    box-shadow: 0 8px 20px rgba(220, 53, 69, 0.25);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+
+  .stat-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.7rem;
+    color: #6c757d;
+    position: relative;
+    z-index: 2;
+  }
+
+  .stat-value {
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1;
+    color: #212529;
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+  }
+
+  .stat-card:hover .stat-value {
+    transform: scale(1.1);
+  }
+
+  .stat-card.completed .stat-label { color: #198754; }
+  .stat-card.completed .stat-value { color: #198754; }
+  .stat-card.pending .stat-label { color: #ffc107; }
+  .stat-card.pending .stat-value { color: #ffc107; }
+  .stat-card.today .stat-label { color: #0d6efd; }
+  .stat-card.today .stat-value { color: #0d6efd; }
+  .stat-card.tomorrow .stat-label { color: #0dcaf0; }
+  .stat-card.tomorrow .stat-value { color: #0dcaf0; }
+  .stat-card.overdue .stat-label { color: #dc3545; }
+  .stat-card.overdue .stat-value { color: #dc3545; }
+
+  /* Quick Actions */
+  .actions-section {
+    animation: slideUp 0.7s ease-out 0.5s backwards;
+  }
+
+  .actions-header {
+    margin-bottom: 1.8rem;
+    position: relative;
+  }
+
+  .actions-header::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+    border-radius: 2px;
+  }
+
+  .actions-header h5 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #212529;
+    letter-spacing: -0.3px;
+  }
+
+  .actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .action-btn {
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+
+  .action-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    transform: translate(-50%, -50%);
+    transition: width 0.7s ease, height 0.7s ease;
+  }
+
+  .action-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+    background-size: 200% 200%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .action-btn:hover::before {
+    width: 500px;
+    height: 500px;
+  }
+
+  .action-btn:hover::after {
+    opacity: 1;
+    animation: shimmer 1.5s infinite;
+  }
+
+  .action-btn:hover {
+    transform: translateY(-6px) scale(1.02);
+  }
+
+  .action-btn:active {
+    transform: translateY(-2px) scale(0.98);
+  }
+
+  .action-btn i {
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+
+  .action-btn:hover i {
+    transform: scale(1.2) rotate(5deg);
+  }
+
+  .btn-success {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    color: white;
+    border: none;
+  }
+
+  .btn-success:hover {
+    box-shadow: 0 12px 35px rgba(25, 135, 84, 0.45);
+    background: linear-gradient(135deg, #157347 0%, #1aa179 100%);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+    color: white;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 12px 35px rgba(13, 110, 253, 0.45);
+    background: linear-gradient(135deg, #0b5ed7 0%, #0ab6d8 100%);
+  }
+
+  .btn-outline-danger {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(214, 51, 132, 0.1) 100%);
+    color: #dc3545;
+    border: 2px solid #dc3545;
+  }
+
+  .btn-outline-danger:hover {
+    background: linear-gradient(135deg, #dc3545 0%, #d63384 100%);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 12px 35px rgba(220, 53, 69, 0.45);
+  }
+
+  /* Responsive */
+  @media (max-width: 992px) {
+    .stats-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.2rem;
+    }
+
+    .actions-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .dashboard-header h2 {
+      font-size: 1.8rem;
+    }
+
+    .stat-value {
+      font-size: 2.3rem;
+    }
+
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      font-size: 1.5rem;
+    }
+
+    .stat-card {
+      padding: 1.5rem 1rem;
+    }
+
+    .action-btn {
+      padding: 1.2rem 1.5rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .dashboard-header h2 {
+      font-size: 1.5rem;
+    }
+
+    .stat-card {
+      padding: 1.3rem 1rem;
+    }
+  }
+</style>
+
+<div class="container-fluid px-4 dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <h2>Welcome back, {{ user.name }}!</h2>
+    <p>Here's an overview of your tasks</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card total">
+      <div class="stat-icon">
+        <i class="bi bi-card-checklist"></i>
+      </div>
+      <div class="stat-label">Total Tasks</div>
+      <div class="stat-value">{{ stats.total }}</div>
+    </div>
+
+    <div class="stat-card completed">
+      <div class="stat-icon">
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+      <div class="stat-label">Completed</div>
+      <div class="stat-value">{{ stats.completed }}</div>
+    </div>
+
+    <div class="stat-card pending">
+      <div class="stat-icon">
+        <i class="bi bi-clock-fill"></i>
+      </div>
+      <div class="stat-label">Pending</div>
+      <div class="stat-value">{{ stats.pending }}</div>
+    </div>
+
+    <div class="stat-card today">
+      <div class="stat-icon">
+        <i class="bi bi-calendar-day"></i>
+      </div>
+      <div class="stat-label">Due Today</div>
+      <div class="stat-value">{{ stats.due_today }}</div>
+    </div>
+
+    <div class="stat-card tomorrow">
+      <div class="stat-icon">
+        <i class="bi bi-calendar-plus"></i>
+      </div>
+      <div class="stat-label">Due Tomorrow</div>
+      <div class="stat-value">{{ stats.due_tomorrow }}</div>
+    </div>
+
+    <div class="stat-card overdue">
+      <div class="stat-icon">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+      </div>
+      <div class="stat-label">Overdue</div>
+      <div class="stat-value">{{ stats.overdue }}</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="actions-section">
+    <div class="actions-header">
+      <h5>Quick Actions</h5>
+    </div>
+    <div class="actions-grid">
+      <a href="{{ url_for('add_task') }}" class="action-btn btn-success">
+        <i class="bi bi-plus-circle"></i>
+        <span>Add New Task</span>
+      </a>
+      <a href="{{ url_for('view_tasks') }}" class="action-btn btn-primary">
+        <i class="bi bi-list-task"></i>
+        <span>View All Tasks</span>
+      </a>
+      <a href="{{ url_for('delete_task') }}" class="action-btn btn-outline-danger">
+        <i class="bi bi-trash"></i>
+        <span>Delete Task</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

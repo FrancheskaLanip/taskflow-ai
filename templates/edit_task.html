@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Task - TaskFlow AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .form-header h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+    }
+
+    .form-header p {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+    }
+
+    .task-form {
+        background: var(--bg-card);
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        padding: 3rem;
+        border: 1px solid rgba(0, 212, 255, 0.15);
+    }
+
+    .form-group {
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.8rem;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-label i {
+        color: var(--ai-primary);
+        font-size: 1rem;
+    }
+
+    .form-input,
+    .form-select {
+        width: 100%;
+        padding: 0.95rem 1.2rem;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: rgba(0, 212, 255, 0.03);
+        color: var(--text-primary);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.5;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--ai-primary);
+        background: rgba(0, 212, 255, 0.05);
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    .priority-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .priority-option {
+        position: relative;
+    }
+
+    .priority-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .priority-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.2rem;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 12px;
+        text-align: center;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(0, 212, 255, 0.03);
+    }
+
+    .priority-label i {
+        font-size: 1.5rem;
+    }
+
+    .priority-option input[type="radio"]:checked + .priority-label {
+        border-color: var(--ai-primary);
+        background: rgba(0, 212, 255, 0.1);
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .priority-label:hover {
+        border-color: var(--ai-primary);
+        transform: translateY(-3px);
+    }
+
+    .priority-label.high {
+        border-color: rgba(239, 68, 68, 0.3);
+        color: var(--ai-danger);
+    }
+
+    .priority-option input[type="radio"]:checked + .priority-label.high {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: var(--ai-danger);
+    }
+
+    .priority-label.medium {
+        border-color: rgba(245, 158, 11, 0.3);
+        color: var(--ai-warning);
+    }
+
+    .priority-option input[type="radio"]:checked + .priority-label.medium {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: var(--ai-warning);
+    }
+
+    .priority-label.low {
+        border-color: rgba(16, 185, 129, 0.3);
+        color: var(--ai-success);
+    }
+
+    .priority-option input[type="radio"]:checked + .priority-label.low {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: var(--ai-success);
+    }
+
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+    }
+
+    .category-option {
+        position: relative;
+    }
+
+    .category-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .category-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 1.2rem 0.8rem;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(0, 212, 255, 0.03);
+    }
+
+    .category-label i {
+        font-size: 2rem;
+        color: var(--ai-primary);
+    }
+
+    .category-label span {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .category-option input[type="radio"]:checked + .category-label {
+        border-color: var(--ai-primary);
+        background: rgba(0, 212, 255, 0.1);
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    .category-option input[type="radio"]:checked + .category-label i,
+    .category-option input[type="radio"]:checked + .category-label span {
+        color: var(--ai-primary);
+    }
+
+    .category-label:hover {
+        border-color: var(--ai-primary);
+        transform: translateY(-3px);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(0, 212, 255, 0.1);
+    }
+
+    .form-actions .btn {
+        flex: 1;
+        justify-content: center;
+        padding: 1.2rem;
+        font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-header h1 {
+            font-size: 2rem;
+        }
+
+        .task-form {
+            padding: 2rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .priority-options {
+            grid-template-columns: 1fr;
+        }
+
+        .category-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1><i class="fas fa-cogs"></i> Neural Task Modifier</h1>
+        <p>Update task parameters and configuration</p>
+    </div>
+
+    <form method="POST" class="task-form">
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-heading"></i>
+                Task Identifier
+            </label>
+            <input type="text" name="name" class="form-input" value="{{ task.name }}" placeholder="Enter task name..." required autofocus>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-calendar-alt"></i>
+                    Target Deadline
+                </label>
+                <input type="date" name="deadline" class="form-input" value="{% if task.deadline %}{{ task.deadline.isoformat() }}{% endif %}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-sync"></i>
+                    Recurrence Pattern
+                </label>
+                <select name="recurring" class="form-select">
+                    <option value="None" {% if task.recurring == 'None' %}selected{% endif %}>None</option>
+                    <option value="Daily" {% if task.recurring == 'Daily' %}selected{% endif %}>Daily</option>
+                    <option value="Weekly" {% if task.recurring == 'Weekly' %}selected{% endif %}>Weekly</option>
+                    <option value="Monthly" {% if task.recurring == 'Monthly' %}selected{% endif %}>Monthly</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-layer-group"></i>
+                Category Classification
+            </label>
+            <div class="category-grid">
+                <div class="category-option">
+                    <input type="radio" name="category" value="Work" id="cat-work" {% if task.category == 'Work' %}checked{% endif %}>
+                    <label for="cat-work" class="category-label">
+                        <i class="fas fa-briefcase"></i>
+                        <span>Work</span>
+                    </label>
+                </div>
+                <div class="category-option">
+                    <input type="radio" name="category" value="Personal" id="cat-personal" {% if task.category == 'Personal' %}checked{% endif %}>
+                    <label for="cat-personal" class="category-label">
+                        <i class="fas fa-user"></i>
+                        <span>Personal</span>
+                    </label>
+                </div>
+                <div class="category-option">
+                    <input type="radio" name="category" value="School" id="cat-school" {% if task.category == 'School' %}checked{% endif %}>
+                    <label for="cat-school" class="category-label">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>School</span>
+                    </label>
+                </div>
+                <div class="category-option">
+                    <input type="radio" name="category" value="Health" id="cat-health" {% if task.category == 'Health' %}checked{% endif %}>
+                    <label for="cat-health" class="category-label">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>Health</span>
+                    </label>
+                </div>
+                <div class="category-option">
+                    <input type="radio" name="category" value="Finance" id="cat-finance" {% if task.category == 'Finance' %}checked{% endif %}>
+                    <label for="cat-finance" class="category-label">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>Finance</span>
+                    </label>
+                </div>
+                <div class="category-option">
+                    <input type="radio" name="category" value="Other" id="cat-other" {% if task.category == 'Other' or not task.category %}checked{% endif %}>
+                    <label for="cat-other" class="category-label">
+                        <i class="fas fa-ellipsis-h"></i>
+                        <span>Other</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">
+                <i class="fas fa-signal"></i>
+                Priority Level
+            </label>
+            <div class="priority-options">
+                <div class="priority-option">
+                    <input type="radio" name="priority" value="High" id="priority-high" {% if task.priority == 'High' %}checked{% endif %}>
+                    <label for="priority-high" class="priority-label high">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>High</span>
+                    </label>
+                </div>
+                <div class="priority-option">
+                    <input type="radio" name="priority" value="Medium" id="priority-medium" {% if task.priority == 'Medium' or not task.priority %}checked{% endif %}>
+                    <label for="priority-medium" class="priority-label medium">
+                        <i class="fas fa-minus-circle"></i>
+                        <span>Medium</span>
+                    </label>
+                </div>
+                <div class="priority-option">
+                    <input type="radio" name="priority" value="Low" id="priority-low" {% if task.priority == 'Low' %}checked{% endif %}>
+                    <label for="priority-low" class="priority-label low">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Low</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Update Task
+            </button>
+            <a href="{{ url_for('task_detail', task_id=task.id) }}" class="btn btn-outline">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

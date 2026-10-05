@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block title %}Login - TaskFlow AI{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+    }
+
+    /* Floating AI Particles */
+    .ai-particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        background: var(--ai-primary);
+        border-radius: 50%;
+        opacity: 0.3;
+        animation: float-particle 15s infinite;
+    }
+
+    .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 20%; animation-delay: 2s; }
+    .particle:nth-child(3) { left: 30%; animation-delay: 4s; }
+    .particle:nth-child(4) { left: 40%; animation-delay: 1s; }
+    .particle:nth-child(5) { left: 50%; animation-delay: 3s; }
+    .particle:nth-child(6) { left: 60%; animation-delay: 5s; }
+    .particle:nth-child(7) { left: 70%; animation-delay: 2s; }
+    .particle:nth-child(8) { left: 80%; animation-delay: 4s; }
+    .particle:nth-child(9) { left: 90%; animation-delay: 1s; }
+
+    @keyframes float-particle {
+        0% {
+            transform: translateY(100vh) scale(0);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.3;
+        }
+        90% {
+            opacity: 0.3;
+        }
+        100% {
+            transform: translateY(-100vh) scale(1);
+            opacity: 0;
+        }
+    }
+
+    .auth-box {
+        max-width: 480px;
+        width: 100%;
+        background: var(--bg-card);
+        backdrop-filter: blur(30px);
+        border-radius: 24px;
+        padding: 3rem;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.4);
+        position: relative;
+        z-index: 10;
+    }
+
+    .auth-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--ai-primary), transparent);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .auth-logo {
+        font-size: 2.2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7rem;
+    }
+
+    .auth-logo i {
+        font-size: 2.5rem;
+        animation: rotate-icon 10s linear infinite;
+    }
+
+    .auth-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        font-weight: 400;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.6rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-input-wrapper {
+        position: relative;
+    }
+
+    .form-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 1rem;
+        transition: color 0.3s;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.95rem 1rem 0.95rem 2.8rem;
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 12px;
+        font-size: 0.95rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.3s ease;
+        background: rgba(0, 212, 255, 0.03);
+        color: var(--text-primary);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.5;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--ai-primary);
+        background: rgba(0, 212, 255, 0.05);
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+
+    .form-input:focus + .form-icon {
+        color: var(--ai-primary);
+    }
+
+    .form-input-wrapper:has(.form-input:focus) .form-icon {
+        color: var(--ai-primary);
+    }
+
+    .btn-auth {
+        width: 100%;
+        padding: 1.1rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7rem;
+        background: linear-gradient(135deg, var(--ai-primary), var(--ai-secondary));
+        color: white;
+        margin-top: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-auth::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-auth:hover::before {
+        left: 100%;
+    }
+
+    .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 40px rgba(0, 212, 255, 0.4);
+    }
+
+    .auth-divider {
+        text-align: center;
+        margin: 2rem 0;
+        position: relative;
+    }
+
+    .auth-divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.2), transparent);
+    }
+
+    .auth-divider span {
+        background: var(--bg-card);
+        padding: 0 1rem;
+        position: relative;
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .auth-link {
+        text-align: center;
+        color: var(--text-secondary);
+        margin-top: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .auth-link a {
+        color: var(--ai-primary);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .auth-link a:hover {
+        color: var(--ai-secondary);
+    }
+
+    .remember-forgot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+    }
+
+    .remember-me input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: var(--ai-primary);
+    }
+
+    .forgot-password {
+        color: var(--ai-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+
+    .forgot-password:hover {
+        color: var(--ai-secondary);
+    }
+
+    @media (max-width: 768px) {
+        .auth-box {
+            padding: 2rem;
+        }
+
+        .auth-logo {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="ai-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="auth-box">
+        <div class="auth-header">
+            <h1 class="auth-logo">
+                <i class="fas fa-microchip"></i> TaskFlow AI
+            </h1>
+            <p class="auth-subtitle">Neural Authentication System</p>
+        </div>
+
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-envelope form-icon"></i>
+                    <input type="email" name="email" class="form-input" placeholder="your@email.com" required autofocus>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div class="form-input-wrapper">
+                    <i class="fas fa-lock form-icon"></i>
+                    <input type="password" name="password" class="form-input" placeholder="Enter password" required>
+                </div>
+            </div>
+
+            <div class="remember-forgot">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember">
+                    <span>Remember me</span>
+                </label>
+                <a href="#" class="forgot-password">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn-auth">
+                <i class="fas fa-sign-in-alt"></i>
+                Access System
+            </button>
+        </form>
+
+        <div class="auth-divider">
+            <span>or</span>
+        </div>
+
+        <div class="auth-link">
+            New user? <a href="{{ url_for('signup') }}">Create account</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

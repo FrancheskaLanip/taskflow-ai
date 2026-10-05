@@ -1,0 +1,54 @@
+/* General background and text */
+body {
+  background: linear-gradient(135deg, #f0f4f8, #d9e8ff);
+    font-family: 'Inter', sans-serif;
+      color: #1e293b;
+      }
+
+      /* Dark mode override */
+      [data-theme="dark"] body {
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+          color: #e2e8f0;
+          }
+
+          /* Card styling */
+          .card {
+            border-radius: 12px;
+              transition: transform 0.2s ease;
+              }
+              .card:hover {
+                transform: translateY(-4px);
+                }
+
+                /* Buttons */
+                .btn-primary {
+                  background-color: #2563eb;
+                    border-color: #2563eb;
+                    }
+                    .btn-success {
+                      background-color: #16a34a;
+                        border-color: #16a34a;
+                        }
+                        .btn-danger {
+                          background-color: #dc2626;
+                            border-color: #dc2626;
+                            }
+                            .btn-warning {
+                              background-color: #f59e0b;
+                                border-color: #f59e0b;
+                                }
+
+                                /* Task states */
+                                .task-completed {
+                                  text-decoration: line-through;
+                                    color: #64748b;
+                                    }
+                                    .deadline-overdue {
+                                      color: #dc2626;
+                                        font-weight: 600;
+                                        }
+                                        .deadline-today {
+                                          color: #f59e0b;
+                                            font-weight: 600;
+                                            }
+                                            
